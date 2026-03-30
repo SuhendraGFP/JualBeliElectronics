@@ -9,7 +9,7 @@
 
   <!-- 🔥 Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -446,7 +446,7 @@
        🔥 FIREBASE INIT
     ==================================================== */
     firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+    const db = firebase.database();
 
     /* ====================================================
        AUTH
@@ -503,9 +503,11 @@
     async function loadProducts() {
       showLoading('Memuat produk dari Firebase...');
       try {
-        const snapshot = await withTimeout(db.collection('products').get());
-        products = snapshot.docs.map(doc => ({ firestoreId: doc.id, ...doc.data() }));
-        // Urutkan berdasarkan nama
+        const snapshot = await withTimeout(db.ref('products').get());
+        const val = snapshot.val();
+        products = val
+          ? Object.entries(val).map(([id, data]) => ({ firestoreId: id, ...data }))
+          : [];
         products.sort((a, b) => a.name.localeCompare(b.name));
       } catch (e) {
         toast('❌ Gagal memuat produk: ' + e.message);
@@ -555,12 +557,12 @@
       try {
         if (editingId !== null) {
           // UPDATE produk yang sudah ada
-          await withTimeout(db.collection('products').doc(editingId).update(data));
+          await withTimeout(db.ref('products').child(editingId).update(data));
           toast(`✅ ${name} berhasil diperbarui`);
           cancelEdit();
         } else {
           // TAMBAH produk baru
-          await withTimeout(db.collection('products').add(data));
+          await withTimeout(db.ref('products').push(data));
           toast(`✅ ${name} berhasil ditambahkan`);
           document.getElementById('prod-form').reset();
           document.getElementById('img-preview').classList.remove('show');
@@ -607,7 +609,7 @@
       if (!confirm('Hapus produk ini dari Firebase?')) return;
       showLoading('Menghapus produk...');
       try {
-        await withTimeout(db.collection('products').doc(firestoreId).delete());
+        await withTimeout(db.ref('products').child(firestoreId).remove());
         toast('🗑️ Produk berhasil dihapus');
         await loadProducts();
         renderList();
@@ -740,7 +742,7 @@
           description: rest.description || '',
         };
         try {
-          await withTimeout(db.collection('products').add(produk));
+          await withTimeout(db.ref('products').push(produk));
           sukses++;
         } catch (e) {
           gagal++;
