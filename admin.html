@@ -372,6 +372,18 @@
           <p>Download semua produk dari Firebase sebagai file JSON untuk backup.</p>
           <button class="export-btn" onclick="exportJSON()">Download backup-products.json</button>
         </div>
+
+        <!-- IMPORT BOX -->
+        <div class="export-box" style="border-color:#bfdbfe;background:#eff6ff;">
+          <h4 style="color:var(--accent)">📥 Import dari JSON</h4>
+          <p style="margin-bottom:10px;">Upload file <code style="background:#dbeafe;padding:1px 6px;border-radius:4px;font-size:12px;">products.json</code> untuk memasukkan semua produk sekaligus ke Firebase.</p>
+          <input type="file" id="import-file" accept=".json" style="display:none" onchange="importJSON(event)" />
+          <button class="export-btn" style="border-color:var(--accent);color:var(--accent);background:#fff;"
+            onclick="document.getElementById('import-file').click()">
+            Pilih File JSON &amp; Upload
+          </button>
+          <div id="import-status" style="margin-top:8px;font-size:12px;color:var(--muted);display:none"></div>
+        </div>
       </div>
 
       <!-- RIGHT: PRODUCT LIST -->
@@ -652,6 +664,73 @@
     function updateCatList() {
       const cats = [...new Set(products.map(p => p.category))];
       document.getElementById('cat-list').innerHTML = cats.map(c => `<option value="${c}">`).join('');
+    }
+
+    /* ====================================================
+       IMPORT JSON → FIRESTORE
+    ==================================================== */
+    async function importJSON(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const statusEl = document.getElementById('import-status');
+      statusEl.style.display = 'block';
+      statusEl.style.color = 'var(--muted)';
+      statusEl.textContent = 'Membaca file...';
+
+      const text = await file.text();
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch (e) {
+        statusEl.style.color = 'var(--red)';
+        statusEl.textContent = '❌ File JSON tidak valid!';
+        return;
+      }
+
+      if (!Array.isArray(data) || data.length === 0) {
+        statusEl.style.color = 'var(--red)';
+        statusEl.textContent = '❌ Data kosong atau format salah.';
+        return;
+      }
+
+      showLoading(`Mengupload 0 / ${data.length} produk...`);
+      let sukses = 0, gagal = 0;
+
+      for (let i = 0; i < data.length; i++) {
+        const item = data[i];
+        // Buang field "id" lama (numerik), biar Firestore generate ID sendiri
+        const { id, firestoreId, ...rest } = item;
+        const produk = {
+          name:        rest.name        || '',
+          category:    rest.category    || '',
+          price:       Number(rest.price)  || 0,
+          stock:       Number(rest.stock)  || 0,
+          image:       rest.image       || '',
+          description: rest.description || '',
+        };
+        try {
+          await db.collection('products').add(produk);
+          sukses++;
+        } catch (e) {
+          gagal++;
+        }
+        document.getElementById('loading-txt').textContent =
+          `Mengupload ${sukses + gagal} / ${data.length} produk...`;
+      }
+
+      hideLoading();
+      await loadProducts();
+      renderList();
+      updateStats();
+      updateCatList();
+
+      statusEl.style.color = sukses > 0 ? 'var(--green)' : 'var(--red)';
+      statusEl.textContent = `✅ ${sukses} produk berhasil diupload${gagal ? `, ❌ ${gagal} gagal` : ''}.`;
+      toast(`✅ Import selesai: ${sukses} produk masuk ke Firebase!`);
+
+      // Reset input biar bisa import lagi kalau perlu
+      document.getElementById('import-file').value = '';
     }
 
     /* ====================================================
