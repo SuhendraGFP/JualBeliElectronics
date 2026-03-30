@@ -257,6 +257,64 @@
     .toast.out { animation: tout .22s ease forwards; }
     @keyframes tout { to { opacity:0; transform:translateY(14px); } }
 
+    /* ── VARIANTS ─────────────────────────────── */
+    .variant-section { margin-top: 14px; padding-top: 14px; border-top: 1.5px dashed var(--border); }
+    .var-toggle-row { display: flex; align-items: center; gap: 10px; margin-bottom: 0; cursor: pointer; }
+    .toggle-sw { position: relative; width: 38px; height: 22px; flex-shrink: 0; }
+    .toggle-sw input { opacity: 0; width: 0; height: 0; position: absolute; }
+    .toggle-sl {
+      position: absolute; inset: 0; border-radius: 22px;
+      background: var(--border); transition: var(--t); cursor: pointer;
+    }
+    .toggle-sl:before {
+      content: ''; position: absolute; width: 16px; height: 16px;
+      border-radius: 50%; background: #fff;
+      left: 3px; top: 3px; transition: var(--t); box-shadow: 0 1px 3px rgba(0,0,0,.2);
+    }
+    .toggle-sw input:checked + .toggle-sl { background: var(--accent); }
+    .toggle-sw input:checked + .toggle-sl:before { transform: translateX(16px); }
+    .var-toggle-label { font-size: 13px; font-weight: 600; user-select: none; }
+    .var-fields { margin-top: 12px; display: none; }
+    .var-fields.show { display: block; }
+    .var-col-heads {
+      display: grid; grid-template-columns: 1fr 90px 70px 28px;
+      gap: 6px; padding: 0 0 4px 2px;
+    }
+    .var-col-h { font-size: 10.5px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .3px; }
+    .var-list { display: flex; flex-direction: column; gap: 7px; margin-bottom: 8px; }
+    .var-row {
+      display: grid; grid-template-columns: 1fr 90px 70px 28px;
+      gap: 6px; align-items: center;
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: var(--r-sm); padding: 7px 8px;
+    }
+    .var-row input {
+      background: var(--surface); border: 1.5px solid var(--border);
+      border-radius: 6px; padding: 6px 8px; font-family: inherit;
+      font-size: 13px; color: var(--text); outline: none; width: 100%;
+      transition: var(--t);
+    }
+    .var-row input:focus { border-color: var(--accent); }
+    .var-del {
+      color: var(--red); opacity: .5; cursor: pointer; border: none; background: none;
+      width: 26px; height: 26px; border-radius: 5px;
+      display: flex; align-items: center; justify-content: center; transition: var(--t);
+    }
+    .var-del:hover { opacity: 1; background: var(--red-lt); }
+    .add-var-btn {
+      width: 100%; padding: 8px; border-radius: var(--r-sm);
+      border: 1.5px dashed var(--border); background: transparent;
+      color: var(--accent); font-family: inherit; font-size: 13px; font-weight: 600;
+      cursor: pointer; transition: var(--t);
+    }
+    .add-var-btn:hover { border-color: var(--accent); background: var(--accent-lt); }
+    .var-note { font-size: 11.5px; color: var(--muted); margin-top: 6px; line-height: 1.5; }
+    .pi-var-badge {
+      display: inline-block; padding: 1px 7px; border-radius: 4px;
+      background: var(--accent-lt); color: var(--accent);
+      font-size: 10.5px; font-weight: 700; margin-left: 5px;
+    }
+
     /* ── RESPONSIVE ─────────────────────────────── */
     @media (max-width: 820px) { .wrap { grid-template-columns: 1fr; } }
     @media (max-width: 500px) {
@@ -361,7 +419,29 @@
                 <textarea class="finput" id="f-desc" rows="2" placeholder="Keterangan singkat produk..."></textarea>
               </div>
 
-              <button type="submit" class="submit-btn" id="submit-btn">Simpan Produk</button>
+              <!-- VARIANTS SECTION -->
+              <div class="variant-section">
+                <label class="var-toggle-row" for="f-has-variants">
+                  <div class="toggle-sw">
+                    <input type="checkbox" id="f-has-variants" onchange="toggleVariants()" />
+                    <span class="toggle-sl"></span>
+                  </div>
+                  <span class="var-toggle-label">Produk ini punya varian (contoh: ukuran, tipe, warna)</span>
+                </label>
+                <div class="var-fields" id="var-fields">
+                  <div class="var-col-heads" style="margin-top:10px">
+                    <div class="var-col-h">Nama Varian</div>
+                    <div class="var-col-h">Harga (Rp)</div>
+                    <div class="var-col-h">Stok</div>
+                    <div></div>
+                  </div>
+                  <div class="var-list" id="var-list"></div>
+                  <button type="button" class="add-var-btn" onclick="addVariantRow()">+ Tambah Varian</button>
+                  <p class="var-note">⚠️ Kalau varian aktif, harga &amp; stok utama di atas diabaikan.</p>
+                </div>
+              </div>
+
+              <button type="submit" class="submit-btn" id="submit-btn" style="margin-top:16px">Simpan Produk</button>
             </form>
           </div>
         </div>
@@ -433,15 +513,14 @@
 
     // ⬇️  Ganti dengan config Firebase project kamu
     const firebaseConfig = {
-  apiKey: "AIzaSyBw7lDpsVffX5EJp52E-6EuLIDFMKvqia8",
-  authDomain: "rvstore-a48f9.firebaseapp.com",
-  projectId: "rvstore-a48f9",
-  storageBucket: "rvstore-a48f9.firebasestorage.app",
-  messagingSenderId: "966135589055",
-  appId: "1:966135589055:web:15d279664a3515f7693e0a",
-  measurementId: "G-3532Y85MTB",
-  databaseURL: "https://rvstore-a48f9-default-rtdb.asia-southeast1.firebasedatabase.app"  // ← tambah ini
-};
+    apiKey: "AIzaSyBw7lDpsVffX5EJp52E-6EuLIDFMKvqia8",
+    authDomain: "rvstore-a48f9.firebaseapp.com",
+    projectId: "rvstore-a48f9",
+    storageBucket: "rvstore-a48f9.firebasestorage.app",
+    messagingSenderId: "966135589055",
+    appId: "1:966135589055:web:15d279664a3515f7693e0a",
+    measurementId: "G-3532Y85MTB"
+  };
 
     /* ====================================================
        🔥 FIREBASE INIT
@@ -519,8 +598,83 @@
     }
 
     /* ====================================================
-       FORM
+       VARIANTS
     ==================================================== */
+    let variantRows = []; // [{key, name, price, stock}] — key = existing Firebase key or temp
+
+    function toggleVariants() {
+      const on = document.getElementById('f-has-variants').checked;
+      document.getElementById('var-fields').classList.toggle('show', on);
+      // Toggle required on main price/stock
+      document.getElementById('f-price').required = !on;
+      document.getElementById('f-stock').required = !on;
+      if (on && variantRows.length === 0) addVariantRow();
+    }
+
+    function addVariantRow(key = null, name = '', price = '', stock = '') {
+      const id = key || ('new_' + Date.now() + '_' + Math.random().toString(36).substr(2,4));
+      variantRows.push({ id });
+      renderVariantRows();
+      // Populate if editing
+      if (name || price !== '' || stock !== '') {
+        const row = document.getElementById('vrow-' + id);
+        if (row) {
+          row.querySelector('.vi-name').value  = name;
+          row.querySelector('.vi-price').value = price;
+          row.querySelector('.vi-stock').value = stock;
+        }
+      }
+    }
+
+    function removeVariantRow(id) {
+      variantRows = variantRows.filter(r => r.id !== id);
+      renderVariantRows();
+    }
+
+    function renderVariantRows() {
+      document.getElementById('var-list').innerHTML = variantRows.map(r => `
+        <div class="var-row" id="vrow-${r.id}">
+          <input class="vi-name"  placeholder="Nama varian" />
+          <input class="vi-price" type="number" min="0" placeholder="0" />
+          <input class="vi-stock" type="number" min="0" placeholder="0" />
+          <button type="button" class="var-del" onclick="removeVariantRow('${r.id}')" title="Hapus varian">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>`).join('');
+    }
+
+    function collectVariants() {
+      const result = {};
+      variantRows.forEach(r => {
+        const row   = document.getElementById('vrow-' + r.id);
+        if (!row) return;
+        const name  = row.querySelector('.vi-name').value.trim();
+        const price = Number(row.querySelector('.vi-price').value) || 0;
+        const stock = Number(row.querySelector('.vi-stock').value) || 0;
+        if (name) result[r.id] = { name, price, stock };
+      });
+      return Object.keys(result).length ? result : null;
+    }
+
+    function resetVariants() {
+      variantRows = [];
+      renderVariantRows();
+      document.getElementById('f-has-variants').checked = false;
+      document.getElementById('var-fields').classList.remove('show');
+      document.getElementById('f-price').required = true;
+      document.getElementById('f-stock').required = true;
+    }
+
+    function loadVariantsForEdit(variants) {
+      if (!variants || !Object.keys(variants).length) { resetVariants(); return; }
+      variantRows = [];
+      document.getElementById('f-has-variants').checked = true;
+      document.getElementById('var-fields').classList.add('show');
+      document.getElementById('f-price').required = false;
+      document.getElementById('f-stock').required = false;
+      renderVariantRows(); // clear first
+      Object.entries(variants).forEach(([key, v]) => addVariantRow(key, v.name, v.price, v.stock));
+    }
     function previewImg(url) {
       const el = document.getElementById('img-preview');
       if (url) {
@@ -553,7 +707,24 @@
         toast('❌ Gambar base64 tidak didukung. Gunakan URL https:// dari internet.');
         return;
       }
-      const data = { name, category: cat, price, stock, image: safeImg, description: desc };
+
+      const hasVar  = document.getElementById('f-has-variants').checked;
+      const variants = hasVar ? collectVariants() : null;
+      if (hasVar && !variants) {
+        btn.disabled = false;
+        btn.textContent = editingId ? 'Simpan Perubahan' : 'Simpan Produk';
+        toast('❌ Tambahkan minimal 1 varian dengan nama yang diisi.');
+        return;
+      }
+
+      const data = {
+        name, category: cat,
+        price: hasVar ? 0 : price,
+        stock: hasVar ? 0 : stock,
+        image: safeImg, description: desc,
+      };
+      if (variants) data.variants = variants;
+      else data.variants = null; // clear variants if editing and turned off
 
       try {
         if (editingId !== null) {
@@ -594,6 +765,7 @@
       document.getElementById('f-img').value   = p.image || '';
       document.getElementById('f-desc').value  = p.description || '';
       previewImg(p.image || '');
+      loadVariantsForEdit(p.variants);
       document.querySelector('.panel').scrollIntoView({ behavior: 'smooth' });
     }
 
@@ -604,6 +776,7 @@
       document.getElementById('cancel-edit-btn').style.display = 'none';
       document.getElementById('prod-form').reset();
       document.getElementById('img-preview').classList.remove('show');
+      resetVariants();
     }
 
     async function deleteProduct(firestoreId) {
@@ -647,7 +820,7 @@
             onerror="this.src='https://placehold.co/60x60/f5f5f7/71717a?text=?'" />
           <div class="pi-info">
             <div class="pi-cat">${p.category}</div>
-            <div class="pi-name">${p.name}</div>
+            <div class="pi-name">${p.name}${p.variants && Object.keys(p.variants).length ? `<span class="pi-var-badge">${Object.keys(p.variants).length} varian</span>` : ''}</div>
             <div class="pi-meta">
               <span class="pi-price">${rp(p.price)}</span>
               <span class="pi-stk ${stkCls}">${stkTxt}</span>
