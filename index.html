@@ -395,6 +395,86 @@
     .toast.out { animation: tout .22s ease forwards; }
     @keyframes tout { to { opacity:0; transform:translateY(14px); } }
 
+    /* ── PRODUCT DETAIL MODAL ───────────────────────── */
+    .detail-wrap {
+      position: fixed; inset: 0; background: rgba(0,0,0,.5);
+      z-index: 250; display: flex; align-items: flex-end;
+      opacity: 0; pointer-events: none; transition: opacity .22s;
+    }
+    @media (min-width: 620px) {
+      .detail-wrap { align-items: center; justify-content: center; padding: 20px; }
+    }
+    .detail-wrap.on { opacity: 1; pointer-events: all; }
+    .detail-modal {
+      background: var(--surface); width: 100%; max-width: 560px;
+      max-height: 92vh; overflow-y: auto;
+      border-radius: 20px 20px 0 0; box-shadow: var(--shadow-lg);
+      transform: translateY(40px);
+      transition: transform .3s cubic-bezier(.4,0,.2,1);
+    }
+    @media (min-width: 620px) { .detail-modal { border-radius: 18px; } }
+    .detail-wrap.on .detail-modal { transform: translateY(0); }
+    .detail-img-box {
+      aspect-ratio: 1; background: var(--bg); overflow: hidden;
+      position: relative; max-height: 280px;
+    }
+    .detail-img-box img { width:100%; height:100%; object-fit:contain; padding:20px; }
+    .detail-close-btn {
+      position: absolute; top: 12px; right: 12px;
+      width: 34px; height: 34px; border-radius: 50%;
+      background: rgba(255,255,255,.92); border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text); box-shadow: 0 2px 8px rgba(0,0,0,.12); transition: var(--t);
+    }
+    .detail-close-btn:hover { background: #fff; }
+    .detail-body { padding: 18px 20px 24px; }
+    .detail-cat { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--accent); margin-bottom: 4px; }
+    .detail-name { font-size: 19px; font-weight: 800; line-height: 1.3; margin-bottom: 10px; }
+    .detail-price-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+    .detail-price { font-size: 24px; font-weight: 800; color: var(--accent); }
+    .dt-stk { padding: 3px 10px; border-radius: 5px; font-size: 11.5px; font-weight: 600; }
+    .detail-variants { margin-bottom: 16px; }
+    .dt-var-label { font-size: 12.5px; font-weight: 700; margin-bottom: 8px; color: var(--text); }
+    .dt-var-chips { display: flex; flex-wrap: wrap; gap: 7px; }
+    .var-chip {
+      padding: 7px 14px; border-radius: 8px; border: 1.5px solid var(--border);
+      background: var(--surface); color: var(--text);
+      font-family: inherit; font-size: 13px; font-weight: 500; cursor: pointer; transition: var(--t);
+    }
+    .var-chip:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+    .var-chip.on { background: var(--accent-lt); border-color: var(--accent); color: var(--accent); font-weight: 700; }
+    .var-chip:disabled { opacity: .4; cursor: not-allowed; text-decoration: line-through; }
+    .detail-desc-box { margin-bottom: 16px; }
+    .detail-desc {
+      font-size: 13px; color: var(--muted); line-height: 1.75;
+      white-space: pre-wrap; overflow: hidden;
+      display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical;
+    }
+    .detail-desc.expanded { display: block; }
+    .detail-read-more {
+      font-size: 12.5px; color: var(--accent); font-weight: 600;
+      cursor: pointer; border: none; background: none; padding: 4px 0 0; display: block;
+    }
+    .detail-foot {
+      display: flex; gap: 8px; padding-top: 16px; border-top: 1px solid var(--border);
+    }
+    .dt-btn-buy {
+      flex: 1; padding: 12px; border-radius: var(--r);
+      background: var(--accent); color: #fff; border: none; font-family: inherit;
+      font-weight: 700; font-size: 14px; cursor: pointer; transition: var(--t);
+    }
+    .dt-btn-buy:hover { background: var(--accent-d); }
+    .dt-btn-buy:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; }
+    .dt-btn-cart {
+      padding: 12px 16px; border-radius: var(--r);
+      border: 1.5px solid var(--border); background: var(--surface);
+      color: var(--text); font-family: inherit; font-size: 13px; font-weight: 600;
+      cursor: pointer; display: flex; align-items: center; gap: 6px; transition: var(--t);
+    }
+    .dt-btn-cart:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-lt); }
+    .dt-btn-cart:disabled { opacity: .4; cursor: not-allowed; }
+    .card { cursor: pointer; }
+
     /* ── DISCOUNT BUBBLE ─────────────────────────────── */
     .disc-bubble { position: fixed; bottom: 24px; right: 20px; z-index: 50; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
     .disc-popup {
@@ -569,6 +649,40 @@
     </div>
   </div>
 
+  <!-- PRODUCT DETAIL MODAL -->
+  <div class="detail-wrap" id="modal-detail" onclick="handleDetailBg(event)">
+    <div class="detail-modal" id="detail-modal-inner">
+      <div class="detail-img-box">
+        <img id="dt-img" src="" alt="" onerror="this.src='https://placehold.co/400x400/f5f5f7/71717a?text=No+Image'" />
+        <button class="detail-close-btn" onclick="closeDetail()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="detail-body">
+        <div class="detail-cat" id="dt-cat"></div>
+        <div class="detail-name" id="dt-name"></div>
+        <div class="detail-price-row">
+          <div class="detail-price" id="dt-price"></div>
+          <span class="dt-stk" id="dt-stk"></span>
+        </div>
+        <div class="detail-variants" id="dt-variants" style="display:none"></div>
+        <div class="detail-desc-box">
+          <div class="detail-desc" id="dt-desc"></div>
+          <button class="detail-read-more" id="dt-readmore" onclick="toggleDesc()" style="display:none">Lihat selengkapnya ▾</button>
+        </div>
+        <div class="detail-foot">
+          <button class="dt-btn-buy" id="dt-btn-buy" onclick="buyFromDetail()">Beli Sekarang</button>
+          <button class="dt-btn-cart" id="dt-btn-cart" onclick="addCartFromDetail()" title="Tambah ke keranjang">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
+            </svg>
+            Keranjang
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- CHECKOUT MODAL -->
   <div class="modal-wrap" id="modal-checkout" onclick="handleModalBg(event)">
     <div class="modal">
@@ -633,15 +747,14 @@
 
     // ⬇️  Ganti dengan config Firebase project kamu (sama dengan admin.html)
     const firebaseConfig = {
-  apiKey: "AIzaSyBw7lDpsVffX5EJp52E-6EuLIDFMKvqia8",
-  authDomain: "rvstore-a48f9.firebaseapp.com",
-  projectId: "rvstore-a48f9",
-  storageBucket: "rvstore-a48f9.firebasestorage.app",
-  messagingSenderId: "966135589055",
-  appId: "1:966135589055:web:15d279664a3515f7693e0a",
-  measurementId: "G-3532Y85MTB",
-  databaseURL: "https://rvstore-a48f9-default-rtdb.asia-southeast1.firebasedatabase.app"  // ← tambah ini
-};
+    apiKey: "AIzaSyBw7lDpsVffX5EJp52E-6EuLIDFMKvqia8",
+    authDomain: "rvstore-a48f9.firebaseapp.com",
+    projectId: "rvstore-a48f9",
+    storageBucket: "rvstore-a48f9.firebasestorage.app",
+    messagingSenderId: "966135589055",
+    appId: "1:966135589055:web:15d279664a3515f7693e0a",
+    measurementId: "G-3532Y85MTB"
+  };
 
     /* ====================================================
        🔥 FIREBASE INIT
@@ -669,6 +782,146 @@
     let favOnly       = false;
     let searchQ       = '';
     let checkoutItems = [];
+    let currentDetail = null;
+    let selectedVariant = null;
+    let descExpanded = false;
+
+    /* ====================================================
+       PRODUCT DETAIL MODAL
+    ==================================================== */
+    function openDetail(id) {
+      const p = products.find(x => x.id === id);
+      if (!p) return;
+      currentDetail = p;
+      selectedVariant = null;
+      descExpanded = false;
+
+      document.getElementById('dt-img').src = p.image || '';
+      document.getElementById('dt-img').alt = p.name;
+      document.getElementById('dt-cat').textContent = p.category;
+      document.getElementById('dt-name').textContent = p.name;
+
+      // Description
+      const descEl = document.getElementById('dt-desc');
+      const rmBtn  = document.getElementById('dt-readmore');
+      descEl.textContent = p.description || 'Tidak ada deskripsi.';
+      descEl.classList.remove('expanded');
+      if (p.description && p.description.length > 200) {
+        rmBtn.style.display = 'block';
+        rmBtn.textContent = 'Lihat selengkapnya ▾';
+      } else {
+        rmBtn.style.display = 'none';
+      }
+
+      renderDetailVariants(p);
+      updateDetailUI();
+
+      document.getElementById('modal-detail').classList.add('on');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeDetail() {
+      document.getElementById('modal-detail').classList.remove('on');
+      document.body.style.overflow = '';
+    }
+
+    function handleDetailBg(e) {
+      if (e.target === document.getElementById('modal-detail')) closeDetail();
+    }
+
+    function toggleDesc() {
+      descExpanded = !descExpanded;
+      const descEl = document.getElementById('dt-desc');
+      const rmBtn  = document.getElementById('dt-readmore');
+      descEl.classList.toggle('expanded', descExpanded);
+      rmBtn.textContent = descExpanded ? 'Sembunyikan ▴' : 'Lihat selengkapnya ▾';
+    }
+
+    function renderDetailVariants(p) {
+      const varEl = document.getElementById('dt-variants');
+      const variants = p.variants ? Object.entries(p.variants) : [];
+      if (!variants.length) { varEl.style.display = 'none'; return; }
+      varEl.style.display = 'block';
+      varEl.innerHTML = `
+        <div class="dt-var-label">Pilih Varian</div>
+        <div class="dt-var-chips">
+          ${variants.map(([vid, v]) => `
+            <button class="var-chip" id="vchip-${vid}"
+              onclick="selectVariant('${vid}')"
+              ${v.stock === 0 ? 'disabled title="Stok habis"' : ''}>
+              ${v.name}${v.stock === 0 ? '<br><span style="font-size:10px;opacity:.6">Habis</span>' : ''}
+            </button>`).join('')}
+        </div>`;
+    }
+
+    function selectVariant(vid) {
+      const v = currentDetail.variants[vid];
+      selectedVariant = { vid, ...v };
+      document.querySelectorAll('.var-chip').forEach(el => el.classList.remove('on'));
+      document.getElementById('vchip-' + vid)?.classList.add('on');
+      updateDetailUI();
+    }
+
+    function updateDetailUI() {
+      const p = currentDetail;
+      const v = selectedVariant;
+      const hasVar = p.variants && Object.keys(p.variants).length > 0;
+      const price  = v ? v.price : p.price;
+      const stock  = v ? v.stock : (hasVar ? null : p.stock);
+      const sold   = stock === 0;
+      const needVar = hasVar && !v;
+
+      document.getElementById('dt-price').textContent = rp(price);
+
+      const stkEl = document.getElementById('dt-stk');
+      if (needVar) {
+        stkEl.textContent = 'Pilih varian';
+        stkEl.className = 'dt-stk stk-zero';
+      } else {
+        stkEl.textContent = sold ? 'Habis' : stock <= 5 ? `Sisa ${stock}` : `Stok ${stock}`;
+        stkEl.className = `dt-stk ${sold ? 'stk-zero' : stock <= 5 ? 'stk-low' : 'stk-ok'}`;
+      }
+
+      const btnBuy  = document.getElementById('dt-btn-buy');
+      const btnCart = document.getElementById('dt-btn-cart');
+      btnBuy.disabled  = sold || needVar;
+      btnCart.disabled = sold || needVar;
+      btnBuy.textContent = sold ? 'Stok Habis' : 'Beli Sekarang';
+    }
+
+    function addCartFromDetail() {
+      const p = currentDetail;
+      const v = selectedVariant;
+      const cartId = v ? `${p.id}_${v.vid}` : p.id;
+      const name   = v ? `${p.name} - ${v.name}` : p.name;
+      const price  = v ? v.price : p.price;
+      const stock  = v ? v.stock : p.stock;
+
+      const ex = cart.find(c => c.id === cartId);
+      if (ex) {
+        if (ex.qty >= stock) { toast('Jumlah sudah maksimal stok'); return; }
+        ex.qty++;
+      } else {
+        cart.push({ id: cartId, name, price, image: p.image, qty: 1, max: stock });
+      }
+      saveCart();
+      updateCartDot();
+      toast(`${name} ditambahkan ke keranjang`);
+    }
+
+    function buyFromDetail() {
+      const p = currentDetail;
+      const v = selectedVariant;
+      const name  = v ? `${p.name} - ${v.name}` : p.name;
+      const price = v ? v.price : p.price;
+      checkoutItems = [{ id: p.id, name, price, qty: 1 }];
+      closeDetail();
+      document.getElementById('f-name').value = savedName;
+      document.getElementById('f-note').value = '';
+      renderOrderSummary();
+      document.getElementById('modal-checkout').classList.add('on');
+      document.body.style.overflow = 'hidden';
+    }
 
     /* ====================================================
        🔥 LOAD PRODUCTS FROM FIRESTORE
@@ -733,11 +986,18 @@
       }
 
       grid.innerHTML = list.map(p => {
-        const isFav  = favs.includes(p.id);
-        const stkCls = p.stock === 0 ? 'stk-zero' : p.stock <= 5 ? 'stk-low' : 'stk-ok';
-        const stkTxt = p.stock === 0 ? 'Habis' : p.stock <= 5 ? `Sisa ${p.stock}` : `Stok ${p.stock}`;
-        const sold   = p.stock === 0;
-        return `<div class="card">
+        const isFav    = favs.includes(p.id);
+        const variants = p.variants ? Object.values(p.variants) : [];
+        const hasVar   = variants.length > 0;
+        // For stock display: if has variants, show min stock or "Pilih Varian"
+        const totalStk = hasVar ? variants.reduce((s,v) => s + (v.stock||0), 0) : p.stock;
+        const stkCls   = totalStk === 0 ? 'stk-zero' : totalStk <= 5 ? 'stk-low' : 'stk-ok';
+        const stkTxt   = totalStk === 0 ? 'Habis' : hasVar ? `${variants.filter(v=>v.stock>0).length} varian` : totalStk <= 5 ? `Sisa ${totalStk}` : `Stok ${totalStk}`;
+        const sold     = totalStk === 0;
+        // Price: if has variants show min price
+        const dispPrice = hasVar ? Math.min(...variants.map(v=>v.price||0)) : p.price;
+        const pricePrefix = hasVar ? 'Mulai ' : '';
+        return `<div class="card" onclick="openDetail('${p.id}')">
           <div class="card-img">
             <img src="${p.image || ''}" alt="${p.name}" loading="lazy"
               onerror="this.src='https://placehold.co/300x300/f5f5f7/71717a?text=No+Image'" />
@@ -752,13 +1012,13 @@
             <div class="card-cat">${p.category}</div>
             <div class="card-name">${p.name}</div>
             ${p.description ? `<div class="card-desc">${p.description}</div>` : ''}
-            <div class="card-price">${rp(p.price)}<small>/pcs</small></div>
+            <div class="card-price">${pricePrefix}${rp(dispPrice)}<small>/pcs</small></div>
           </div>
           <div class="card-foot">
-            <button class="btn-buy" ${sold?'disabled':''} onclick="openCheckout('single','${p.id}')">
-              ${sold ? 'Stok Habis' : 'Beli Sekarang'}
+            <button class="btn-buy" ${sold?'disabled':''} onclick="event.stopPropagation(); openDetail('${p.id}')">
+              ${sold ? 'Stok Habis' : hasVar ? 'Pilih Varian' : 'Beli Sekarang'}
             </button>
-            <button class="btn-cart" ${sold?'disabled':''} onclick="addCart('${p.id}')" title="Tambah ke keranjang">
+            <button class="btn-cart" ${sold||hasVar?'disabled':''} onclick="event.stopPropagation(); addCart('${p.id}')" title="${hasVar?'Pilih varian dulu':'Tambah ke keranjang'}">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
               </svg>
