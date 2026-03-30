@@ -1,110 +1,234 @@
 [
   {
     "id": 1,
-    "name": "Arduino Uno R3",
-    "price": 75000,
-    "image": "https://upload.wikimedia.org/wikipedia/commons/3/38/Arduino_Uno_-_R3.jpg",
-    "stock": 15,
+    "name": "ESP32 DevKit V1",
+    "price": 90000,
+    "image": "data:image/jpeg;base64,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",
+    "stock": 10,
     "category": "Mikrokontroler",
-    "description": "Board mikrokontroler berbasis ATmega328P. Cocok untuk pemula dan proyek elektronik dasar."
+    "description": "ESP32 DevKit V1
+
+ESP32 DevKit V1 adalah board pengembangan berbasis mikrokontroler ESP32 yang dilengkapi dengan fitur WiFi dan Bluetooth terintegrasi. Board ini sangat populer untuk proyek IoT, otomasi, dan sistem embedded karena performanya tinggi serta memiliki banyak GPIO.
+
+Spesifikasi:
+Mikrokontroler: ESP32 (dual-core Xtensa LX6)
+Tegangan kerja: 3.3V
+Tegangan input: 5V (via USB) atau 3.3V (pin)
+Clock speed: hingga 240 MHz
+Flash memory: umumnya 4MB
+GPIO: ±30 pin (tergantung versi)
+Konektivitas: WiFi 2.4 GHz & Bluetooth (Classic + BLE)
+Interface: UART, SPI, I2C, I2S, PWM, ADC, DAC
+Port: Micro USB
+
+Kelebihan:
+Sudah terintegrasi WiFi dan Bluetooth
+Performa tinggi dengan dual-core processor
+Banyak pilihan GPIO untuk berbagai kebutuhan
+Mendukung berbagai protokol komunikasi
+Kompatibel dengan Arduino IDE, MicroPython, dan ESP-IDF
+Cocok untuk proyek IoT yang membutuhkan koneksi internet
+
+Cocok untuk:
+Proyek IoT (Internet of Things)
+Smart home dan otomasi
+Monitoring sensor berbasis internet
+Web server embedded
+Robotika dan sistem kontrol
+
+Catatan:
+Semua GPIO bekerja pada logika 3.3V (tidak tahan 5V)
+Perhatikan konsumsi daya saat menggunakan WiFi
+Gunakan kabel USB yang baik untuk upload program
+Beberapa pin memiliki fungsi khusus (boot, strapping), perlu diperhatikan saat penggunaan"
   },
   {
     "id": 2,
-    "name": "ESP32 DevKit V1",
-    "price": 55000,
-    "image": "https://cdn.shopify.com/s/files/1/0672/9409/2179/files/ESP32-DEVKITV1.png?v=1682659711",
-    "stock": 10,
-    "category": "Mikrokontroler",
-    "description": "Modul WiFi + Bluetooth dual-core. Ideal untuk proyek IoT."
+    "name": "Sensor Ultrasonik HC-SR04",
+    "price": 20000,
+    "image": "data:image/jpeg;base64,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",
+    "stock": 25,
+    "category": "Sensor",
+    "description": "HC-SR04 Ultrasonic Sensor
+
+HC-SR04 adalah sensor ultrasonik yang digunakan untuk mengukur jarak dengan memanfaatkan gelombang suara frekuensi tinggi. Sensor ini bekerja dengan cara memancarkan gelombang ultrasonik, kemudian menghitung waktu pantulan (echo) untuk menentukan jarak objek di depannya.
+
+Spesifikasi:
+Tegangan kerja: 5V DC
+Arus kerja: ±15 mA
+Jarak ukur: 2 cm – 400 cm
+Akurasi: ±3 mm
+Frekuensi ultrasonik: 40 kHz
+Sudut deteksi: ±15°
+Interface: 4 pin (VCC, Trig, Echo, GND)
+
+Kelebihan:
+Mampu mengukur jarak tanpa kontak langsung
+Akurasi cukup baik untuk berbagai aplikasi
+Mudah diintegrasikan dengan Arduino dan mikrokontroler lainnya
+Harga terjangkau dan banyak digunakan
+Respon cepat dan stabil
+
+Cocok untuk:
+Robot penghindar halangan
+Sistem parkir otomatis
+Pengukur jarak atau ketinggian
+Proyek IoT dan robotika
+Deteksi objek sederhana
+
+Catatan:
+Gunakan pembagi tegangan pada pin Echo jika memakai mikrokontroler 3.3V (seperti ESP32)
+Hasil pengukuran dapat dipengaruhi oleh permukaan objek dan kondisi lingkungan
+Pastikan posisi sensor lurus ke objek untuk hasil yang lebih akurat"
   },
   {
     "id": 3,
-    "name": "Sensor Suhu DHT22",
-    "price": 35000,
-    "image": "https://images.tokopedia.net/img/cache/700/VqbcmM/2021/10/5/9c2c3b96-be8d-4b03-9e68-fbc4b9d4c6c0.jpg",
-    "stock": 20,
-    "category": "Sensor",
-    "description": "Sensor suhu dan kelembaban digital dengan akurasi tinggi."
-  },
-  {
-    "id": 4,
-    "name": "Sensor Ultrasonik HC-SR04",
-    "price": 18000,
-    "image": "https://cdn.sparkfun.com/assets/parts/1/3/4/9/6/15569-Ultrasonic_Distance_Sensor_-_HC-SR04-01.jpg",
-    "stock": 25,
-    "category": "Sensor",
-    "description": "Sensor jarak ultrasonik 2cm - 400cm. Plug and play dengan Arduino."
-  },
-  {
-    "id": 5,
     "name": "Modul Relay 4 Channel",
     "price": 40000,
     "image": "https://images.tokopedia.net/img/cache/700/VqbcmM/2021/9/28/2b3a4b3e-1b8e-4b8e-b3b8-4b8e3b3b4b8e.jpg",
     "stock": 8,
     "category": "Modul",
-    "description": "Relay 5V 4 channel untuk kontrol beban AC/DC dari mikrokontroler."
+    "description": "Relay 4 Channel
+
+Relay 4 channel adalah modul yang digunakan untuk mengendalikan hingga empat perangkat listrik secara terpisah menggunakan sinyal dari mikrokontroler seperti Arduino, ESP32, atau lainnya. Modul ini memungkinkan kontrol beban tegangan tinggi (AC/DC) menggunakan sinyal tegangan rendah.
+
+Spesifikasi:
+Jumlah channel: 4 relay
+Tegangan kerja: 5V (umumnya)
+Tegangan trigger: 3.3V – 5V (tergantung modul)
+Tipe relay: SPDT (Single Pole Double Throw)
+Kontak relay: NO (Normally Open), NC (Normally Closed), COM
+Arus maksimum: ±10A (AC 250V / DC 30V)
+Interface: Pin IN1 – IN4, VCC, GND
+
+Kelebihan:
+Dapat mengontrol beberapa perangkat sekaligus
+Kompatibel dengan berbagai mikrokontroler
+Memiliki isolasi antara rangkaian kontrol dan beban (relay)
+Biasanya dilengkapi LED indikator tiap channel
+Mudah digunakan dengan sistem plug and play
+
+Cocok untuk:
+Kontrol lampu AC
+Sistem smart home
+Proyek IoT dan otomasi
+Kontrol pompa air atau kipas
+Sistem switching beban listrik
+
+Catatan:
+Hati-hati saat bekerja dengan tegangan tinggi (AC 220V)
+Pastikan daya tidak melebihi kapasitas relay
+Gunakan catu daya yang stabil untuk modul
+Perhatikan tipe trigger (active HIGH atau LOW) pada modul"
+  },
+  {
+    "id": 4,
+    "name": "LCD 16x2 + I2C",
+    "price": 35000,
+    "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcQktoQYkkFlbjO_AN8kVUDqbJQp6_gSspqQeh482fWltC5OsUwb7sUsERf_Vs9t3wJiaVQmiziwRMUGh1YOhZnf-MFBNVM7D2PNMUy_f9ypSdhaPYZZEggokPJzHAOl92_xXpJoMA&usqp=CAc",
+    "stock": 1,
+    "category": "Display",
+    "description": "LCD 16x2 I2C
+
+LCD 16x2 dengan modul I2C adalah display karakter yang mampu menampilkan 16 karakter dalam 2 baris, dilengkapi dengan interface I2C sehingga hanya membutuhkan sedikit pin untuk digunakan dengan mikrokontroler.
+
+Spesifikasi:
+Tipe: LCD 16x2 (16 kolom, 2 baris)
+Interface: I2C (SDA, SCL)
+Tegangan kerja: 5V
+Alamat I2C: 0x27 / 0x3F (tergantung modul)
+Backlight: LED (dapat diatur)
+Kelebihan:
+Hemat pin (hanya 2 pin data)
+Mudah digunakan dengan berbagai mikrokontroler
+Tampilan jelas dan stabil
+Cocok untuk berbagai aplikasi display sederhana
+Cocok untuk:
+Menampilkan data sensor
+Menu interface sederhana
+Proyek Arduino dan ESP
+Monitoring sistem
+Catatan:
+Pastikan alamat I2C sesuai (scan jika perlu)
+Gunakan library I2C LCD yang sesuai"
+  },
+  {
+    "id": 5,
+    "name": "Breadboard 830 Titik",
+    "price": 40000,
+    "image": "https://cdn.sparkfun.com/assets/parts/9/2/8/7/12615-01.jpg",
+    "stock": 1,
+    "category": "Peralatan",
+    "description": "Breadboard 830 Titik
+
+Breadboard 830 titik adalah papan prototyping tanpa solder yang digunakan untuk merangkai dan menguji rangkaian elektronik dengan mudah dan cepat. Breadboard ini sangat populer di kalangan pelajar, hobiis, hingga profesional karena memungkinkan perakitan rangkaian tanpa perlu menyolder komponen.
+
+Spesifikasi:
+Jumlah titik: 830 tie points
+Tipe: Solderless breadboard
+Material: Plastik ABS dengan konektor logam internal
+Layout: 2 jalur power (VCC & GND) dan area terminal utama
+Kompatibilitas: Kabel jumper, resistor, IC, sensor, dan berbagai modul elektronik
+
+Kelebihan:
+Tidak memerlukan solder, sehingga komponen bisa digunakan ulang
+Mudah untuk eksperimen, testing, dan debugging rangkaian
+Memiliki banyak titik koneksi, cocok untuk rangkaian kompleks
+Layout standar memudahkan penggunaan dengan berbagai komponen
+Dapat digunakan berulang kali tanpa merusak komponen
+
+Cocok untuk:
+Belajar elektronika dasar
+Prototyping rangkaian Arduino / mikrokontroler
+Pengujian sensor dan modul
+Pengembangan proyek IoT dan robotika
+Eksperimen rangkaian sebelum dibuat PCB
+
+Catatan:
+Pastikan koneksi sesuai jalur internal breadboard
+Tidak cocok untuk arus besar atau tegangan tinggi
+Gunakan kabel jumper yang baik agar koneksi stabil"
   },
   {
     "id": 6,
-    "name": "LCD 16x2 + I2C Backpack",
-    "price": 32000,
-    "image": "https://cdn.sparkfun.com/assets/parts/7/2/4/7/11441-02.jpg",
-    "stock": 12,
-    "category": "Display",
-    "description": "LCD karakter 16 kolom 2 baris dengan modul I2C. Hemat pin mikrokontroler."
+    "name": "Kabel Jumper Male-Male",
+    "price": 500,
+    "image": data:image/jpeg;base64,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",
+    "stock": 60,
+    "category": "Peralatan",
+    "description": "1 kabel jumper male-to-female panjang 20cm. Warna acak."
   },
   {
     "id": 7,
-    "name": "Breadboard 830 Titik",
-    "price": 22000,
-    "image": "https://cdn.sparkfun.com/assets/parts/9/2/8/7/12615-01.jpg",
-    "stock": 30,
-    "category": "Peralatan",
-    "description": "Papan percobaan 830 titik tanpa solder. Ukuran full standar."
-  },
-  {
-    "id": 8,
-    "name": "Kabel Jumper Male-Female 40pcs",
-    "price": 15000,
-    "image": "https://cdn.sparkfun.com/assets/parts/1/2/0/5/7/14285-01.jpg",
-    "stock": 50,
-    "category": "Peralatan",
-    "description": "Set 40 kabel jumper male-to-female panjang 20cm. Warna acak."
-  },
-  {
-    "id": 9,
-    "name": "Resistor Kit 600pcs",
-    "price": 28000,
-    "image": "https://cdn.sparkfun.com/assets/parts/1/0/4/9/6/13655-01.jpg",
-    "stock": 5,
-    "category": "Komponen Pasif",
-    "description": "Set resistor 30 nilai berbeda, masing-masing 20 buah. Dikemas rapi."
-  },
-  {
-    "id": 10,
-    "name": "Modul Bluetooth HC-05",
-    "price": 45000,
-    "image": "https://images.tokopedia.net/img/cache/700/VqbcmM/2021/9/28/hc05.jpg",
-    "stock": 0,
-    "category": "Komunikasi",
-    "description": "Modul Bluetooth serial UART. Bisa dikonfigurasi sebagai master atau slave."
-  },
-  {
-    "id": 11,
-    "name": "Power Supply 12V 2A",
-    "price": 65000,
-    "image": "https://images.tokopedia.net/img/cache/700/VqbcmM/2021/9/28/psu12v.jpg",
-    "stock": 7,
+    "name": "Modul Charger TP4056",
+    "price": 8000,
+    "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcQ3oYWHE-CzGyTWl1Erm_BgX64Qp14rql5tDOeQgrcKgqlYF-UqaH30iYoL7s3ej1LoAnAroo1n2y1pGW5tcQGQKlnUt3rzS1cZN7xkhtWUB-Ax2gwZ8qPTXQH9wbWnFqKlipUHUbNu27w&usqp=CAc",
+    "stock": 2,
     "category": "Power",
-    "description": "Adaptor DC 12V 2A dengan konektor DC barrel 5.5mm x 2.1mm."
-  },
-  {
-    "id": 12,
-    "name": "Modul Charger TP4056 (5pcs)",
-    "price": 20000,
-    "image": "https://images.tokopedia.net/img/cache/700/VqbcmM/2021/9/28/tp4056.jpg",
-    "stock": 18,
-    "category": "Power",
-    "description": "Modul charger baterai Li-Ion 18650 via micro USB. Dilengkapi proteksi."
+    "description": "Module Charger TP4056
+
+TP4056 adalah modul charger baterai lithium (Li-ion / Li-Po) yang digunakan untuk mengisi baterai 3.7V dengan aman dan stabil. Modul ini banyak digunakan pada proyek elektronik portable karena ukurannya kecil dan mudah digunakan.
+
+Spesifikasi:
+IC utama: TP4056
+Tegangan input: 5V (melalui Micro USB atau pin input)
+Tegangan baterai: 3.7V (1 cell Li-ion / Li-Po)
+Arus charging: hingga 1A (dapat disesuaikan)
+Proteksi: overcharge, overdischarge, dan short circuit (tergantung versi modul)
+Kelebihan:
+Pengisian baterai stabil dengan metode constant current / constant voltage (CC/CV)
+Mudah digunakan, cukup sambungkan baterai dan sumber 5V
+Ukuran kecil dan cocok untuk proyek portable
+Tersedia indikator LED (charging dan full)
+Harga terjangkau dan banyak digunakan
+Cocok untuk:
+Power bank DIY
+Proyek IoT portable
+Robot kecil dan perangkat battery-powered
+Sistem backup daya
+Catatan:
+Hanya untuk baterai 1 cell (3.7V), tidak untuk baterai seri
+Gunakan sumber 5V yang stabil untuk hasil optimal
+Perhatikan polaritas saat menghubungkan baterai"
   }
 ]
