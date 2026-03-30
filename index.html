@@ -9,7 +9,7 @@
 
   <!-- 🔥 Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -646,7 +646,7 @@
        🔥 FIREBASE INIT
     ==================================================== */
     firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+    const db = firebase.database();
 
     /* ====================================================
        STATE
@@ -674,8 +674,11 @@
     ==================================================== */
     async function loadProducts() {
       try {
-        const snapshot = await db.collection('products').get();
-        products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const snapshot = await db.ref('products').get();
+        const val = snapshot.val();
+        products = val
+          ? Object.entries(val).map(([id, data]) => ({ id, ...data }))
+          : [];
       } catch (e) {
         products = [];
         console.warn('Gagal memuat produk dari Firebase:', e.message);
