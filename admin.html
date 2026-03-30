@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin - Rv Store</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    /* ── RESET & VARS ─────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:       #f5f5f7;
+      --surface:  #ffffff;
+      --border:   #e4e4e7;
+      --text:     #18181b;
+      --muted:    #71717a;
+      --accent:   #2563eb;
+      --accent-d: #1d4ed8;
+      --accent-lt:#eff6ff;
+      --green:    #16a34a;
+      --green-lt: #f0fdf4;
+      --red:      #dc2626;
+      --red-lt:   #fef2f2;
+      --yellow:   #ca8a04;
+      --r:        10px;
+      --r-sm:     7px;
+      --shadow:   0 1px 3px rgba(0,0,0,.07), 0 4px 16px rgba(0,0,0,.05);
+      --shadow-md:0 4px 20px rgba(0,0,0,.10);
+      --t:        .16s cubic-bezier(.4,0,.2,1);
+    }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    button { cursor: pointer; border: none; font-family: inherit; font-size: inherit; }
+    input, select, textarea { font-family: inherit; font-size: 14px; outline: none; }
+    img { display: block; max-width: 100%; }
+
+    /* ── LOGIN SCREEN ─────────────────────────────── */
+    .login-wrap {
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+    }
+    .login-box {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 16px;
+      padding: 36px 32px;
+      width: 100%; max-width: 380px;
+      box-shadow: var(--shadow);
+    }
+    .login-logo {
+      font-size: 20px; font-weight: 800;
+      letter-spacing: -.5px;
+      margin-bottom: 4px;
+    }
+    .login-logo em { font-style: normal; color: var(--accent); }
+    .login-sub { font-size: 13px; color: var(--muted); margin-bottom: 28px; }
+    .login-label { display: block; font-size: 12.5px; font-weight: 600; margin-bottom: 6px; }
+    .login-input {
+      width: 100%;
+      padding: 10px 13px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-sm);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 14px;
+      transition: var(--t);
+      margin-bottom: 14px;
+    }
+    .login-input:focus { border-color: var(--accent); background: #fff; }
+    .login-btn {
+      width: 100%;
+      padding: 11px;
+      border-radius: var(--r-sm);
+      background: var(--accent);
+      color: #fff;
+      font-weight: 700;
+      font-size: 14px;
+      transition: var(--t);
+    }
+    .login-btn:hover { background: var(--accent-d); }
+    .login-err { color: var(--red); font-size: 12.5px; margin-top: 8px; display: none; }
+
+    /* ── MAIN APP ─────────────────────────────── */
+    #app { display: none; }
+
+    /* ── HEADER ─────────────────────────────── */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .hdr {
+      max-width: 1100px; margin: 0 auto;
+      padding: 0 20px; height: 58px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .logo { font-size: 18px; font-weight: 800; letter-spacing: -.5px; }
+    .logo em { font-style: normal; color: var(--accent); }
+    .admin-tag {
+      font-size: 11px; font-weight: 700;
+      background: var(--accent-lt); color: var(--accent);
+      padding: 3px 10px; border-radius: 50px;
+    }
+    .store-link {
+      margin-left: auto;
+      padding: 8px 16px;
+      border-radius: 50px;
+      border: 1.5px solid var(--border);
+      font-size: 13px; font-weight: 600;
+      color: var(--muted);
+      background: none;
+      transition: var(--t);
+      text-decoration: none;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .store-link:hover { border-color: var(--accent); color: var(--accent); }
+    .logout-btn {
+      padding: 8px 16px;
+      border-radius: 50px;
+      border: 1.5px solid var(--border);
+      font-size: 13px; font-weight: 600;
+      color: var(--muted); background: none;
+      transition: var(--t);
+    }
+    .logout-btn:hover { border-color: var(--red); color: var(--red); }
+
+    /* ── LAYOUT ─────────────────────────────── */
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 28px 20px 60px; display: grid; grid-template-columns: 380px 1fr; gap: 20px; }
+
+    /* ── PANEL ─────────────────────────────── */
+    .panel {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--r);
+      overflow: hidden;
+    }
+    .panel-head {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .panel-head h2 { font-size: 15px; font-weight: 700; }
+    .panel-body { padding: 20px; }
+
+    /* ── FORM ─────────────────────────────── */
+    .fg { margin-bottom: 13px; }
+    .flabel { display: block; font-size: 12.5px; font-weight: 600; margin-bottom: 5px; }
+    .flabel span { color: var(--red); }
+    .finput {
+      width: 100%;
+      padding: 10px 13px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-sm);
+      background: var(--bg);
+      color: var(--text);
+      transition: var(--t);
+    }
+    .finput:focus { border-color: var(--accent); background: #fff; box-shadow: 0 0 0 3px rgba(37,99,235,.08); }
+    .finput::placeholder { color: var(--muted); }
+    .img-preview {
+      width: 100%; aspect-ratio: 16/9;
+      border: 1.5px dashed var(--border);
+      border-radius: var(--r-sm);
+      object-fit: contain;
+      background: var(--bg);
+      padding: 12px;
+      margin-top: 8px;
+      display: none;
+    }
+    .img-preview.show { display: block; }
+    .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .submit-btn {
+      width: 100%;
+      padding: 12px;
+      border-radius: var(--r);
+      background: var(--accent);
+      color: #fff;
+      font-weight: 700;
+      font-size: 14px;
+      margin-top: 4px;
+      transition: var(--t);
+    }
+    .submit-btn:hover { background: var(--accent-d); }
+    .submit-btn:active { transform: scale(.98); }
+
+    /* ── PRODUCT LIST ─────────────────────────────── */
+    .prod-list { display: flex; flex-direction: column; gap: 10px; }
+    .prod-stats {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+      margin-bottom: 16px;
+    }
+    .stat-box {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      padding: 14px 16px;
+      text-align: center;
+    }
+    .stat-val { font-size: 22px; font-weight: 800; color: var(--text); }
+    .stat-label { font-size: 11px; color: var(--muted); font-weight: 500; margin-top: 1px; }
+    .search-bar {
+      position: relative; margin-bottom: 14px;
+    }
+    .search-bar input {
+      width: 100%;
+      padding: 9px 13px 9px 36px;
+      border: 1.5px solid var(--border);
+      border-radius: 50px;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 13.5px;
+      transition: var(--t);
+    }
+    .search-bar input:focus { border-color: var(--accent); background: #fff; }
+    .search-bar svg { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--muted); }
+    .pi {
+      display: flex; gap: 12px; align-items: flex-start;
+      padding: 12px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--r);
+      background: var(--surface);
+      transition: var(--t);
+    }
+    .pi:hover { border-color: #c7d7f5; }
+    .pi-img {
+      width: 60px; height: 60px;
+      border-radius: var(--r-sm);
+      object-fit: contain;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      padding: 4px;
+      flex-shrink: 0;
+    }
+    .pi-info { flex: 1; min-width: 0; }
+    .pi-name { font-size: 13.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pi-cat { font-size: 11px; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: .4px; }
+    .pi-meta { display: flex; gap: 8px; align-items: center; margin-top: 4px; flex-wrap: wrap; }
+    .pi-price { font-size: 13px; font-weight: 700; color: var(--text); }
+    .pi-stk {
+      font-size: 11px; font-weight: 600;
+      padding: 2px 8px; border-radius: 4px;
+    }
+    .stk-ok   { background: var(--green-lt); color: var(--green); }
+    .stk-low  { background: #fefce8; color: var(--yellow); }
+    .stk-zero { background: var(--red-lt); color: var(--red); }
+    .pi-source { font-size: 10.5px; color: var(--muted); }
+    .pi-actions { display: flex; flex-direction: column; gap: 5px; flex-shrink: 0; }
+    .pi-del {
+      padding: 5px 12px;
+      border-radius: var(--r-sm);
+      background: var(--red-lt);
+      color: var(--red);
+      font-size: 12px; font-weight: 600;
+      transition: var(--t);
+    }
+    .pi-del:hover { background: var(--red); color: #fff; }
+    .pi-del:disabled { opacity: .4; cursor: not-allowed; }
+    .pi-edit {
+      padding: 5px 12px;
+      border-radius: var(--r-sm);
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      font-size: 12px; font-weight: 600;
+      transition: var(--t);
+    }
+    .pi-edit:hover { border-color: var(--accent); color: var(--accent); }
+    .empty-list { text-align: center; padding: 40px 20px; color: var(--muted); font-size: 13px; }
+
+    /* ── EXPORT SECTION ─────────────────────────────── */
+    .export-box {
+      margin-top: 16px;
+      background: var(--bg);
+      border: 1.5px dashed var(--border);
+      border-radius: var(--r);
+      padding: 16px;
+    }
+    .export-box h4 { font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+    .export-box p { font-size: 12px; color: var(--muted); margin-bottom: 10px; line-height: 1.5; }
+    .export-btn {
+      padding: 8px 16px;
+      border-radius: var(--r-sm);
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      font-size: 12.5px; font-weight: 600;
+      transition: var(--t);
+    }
+    .export-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ── TOAST ─────────────────────────────── */
+    .toast-wrap { position: fixed; bottom: 20px; right: 20px; z-index: 500; display: flex; flex-direction: column; gap: 7px; }
+    .toast {
+      background: var(--text); color: #fff;
+      padding: 10px 16px; border-radius: var(--r);
+      font-size: 12.5px; font-weight: 500;
+      box-shadow: var(--shadow-md);
+      animation: tin .22s ease;
+      max-width: 260px;
+    }
+    @keyframes tin { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
+    .toast.out { animation: tout .22s ease forwards; }
+    @keyframes tout { to { opacity:0; transform:translateY(14px); } }
+
+    /* ── RESPONSIVE ─────────────────────────────── */
+    @media (max-width: 820px) {
+      .wrap { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 500px) {
+      .prod-stats { grid-template-columns: repeat(3, 1fr); }
+      .hdr { gap: 8px; }
+      .login-box { padding: 24px 20px; }
+      .row-2 { grid-template-columns: 1fr; }
+    }
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  </style>
+</head>
+<body>
+
+  <!-- ══ LOGIN SCREEN ══════════════════════════════════ -->
+  <div class="login-wrap" id="login-screen">
+    <div class="login-box">
+      <div class="login-logo">Rv <em>Store</em></div>
+      <div class="login-sub">Panel Admin</div>
+      <label class="login-label" for="pwd-input">Password</label>
+      <input class="login-input" type="password" id="pwd-input" placeholder="Masukkan password admin"
+        onkeydown="if(event.key==='Enter') doLogin()" />
+      <button class="login-btn" onclick="doLogin()">Masuk</button>
+      <div class="login-err" id="login-err">Password salah. Coba lagi.</div>
+      <div style="margin-top:16px;font-size:12px;color:var(--muted)">
+        Bukan admin? <a href="index.html" style="color:var(--accent);font-weight:600">Kembali ke toko</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ MAIN APP ══════════════════════════════════════ -->
+  <div id="app">
+
+    <!-- HEADER -->
+    <header>
+      <div class="hdr">
+        <div class="logo">Rv <em>Store</em></div>
+        <span class="admin-tag">Admin</span>
+        <a class="store-link" href="index.html">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+          </svg>
+          Lihat Toko
+        </a>
+        <button class="logout-btn" onclick="doLogout()">Keluar</button>
+      </div>
+    </header>
+
+    <!-- BODY -->
+    <div class="wrap">
+
+      <!-- LEFT: ADD PRODUCT FORM -->
+      <div>
+        <div class="panel">
+          <div class="panel-head">
+            <h2 id="form-title">Tambah Produk</h2>
+            <button id="cancel-edit-btn" onclick="cancelEdit()" style="font-size:12.5px;color:var(--red);font-weight:600;display:none">
+              Batal Edit
+            </button>
+          </div>
+          <div class="panel-body">
+            <form id="prod-form" onsubmit="submitProduct(event)">
+              <input type="hidden" id="edit-id" value="" />
+
+              <div class="fg">
+                <label class="flabel" for="f-name">Nama Produk <span>*</span></label>
+                <input class="finput" id="f-name" placeholder="Nama produk" required />
+              </div>
+
+              <div class="fg">
+                <label class="flabel" for="f-cat">Kategori <span>*</span></label>
+                <input class="finput" id="f-cat" placeholder="Contoh: Mikrokontroler" required list="cat-list" />
+                <datalist id="cat-list"></datalist>
+              </div>
+
+              <div class="row-2">
+                <div class="fg">
+                  <label class="flabel" for="f-price">Harga per pcs (Rp) <span>*</span></label>
+                  <input class="finput" id="f-price" type="number" min="0" placeholder="0" required />
+                </div>
+                <div class="fg">
+                  <label class="flabel" for="f-stock">Stok <span>*</span></label>
+                  <input class="finput" id="f-stock" type="number" min="0" placeholder="0" required />
+                </div>
+              </div>
+
+              <div class="fg">
+                <label class="flabel" for="f-img">URL Foto</label>
+                <input class="finput" id="f-img" type="url" placeholder="https://..." oninput="previewImg(this.value)" />
+                <img class="img-preview" id="img-preview" alt="Preview" />
+              </div>
+
+              <div class="fg">
+                <label class="flabel" for="f-desc">Deskripsi Singkat</label>
+                <textarea class="finput" id="f-desc" rows="2" placeholder="Keterangan singkat produk..."></textarea>
+              </div>
+
+              <button type="submit" class="submit-btn" id="submit-btn">Simpan Produk</button>
+            </form>
+          </div>
+        </div>
+
+        <!-- EXPORT BOX -->
+        <div class="export-box">
+          <h4>Export Data Produk</h4>
+          <p>Download semua produk tambahan sebagai file JSON. Gunakan untuk update products.json di repository GitHub.</p>
+          <button class="export-btn" onclick="exportJSON()">Download products-tambahan.json</button>
+        </div>
+      </div>
+
+      <!-- RIGHT: PRODUCT LIST -->
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Daftar Produk</h2>
+          <span style="font-size:12px;color:var(--muted)" id="prod-count">0 produk</span>
+        </div>
+        <div class="panel-body">
+          <!-- Stats -->
+          <div class="prod-stats">
+            <div class="stat-box">
+              <div class="stat-val" id="stat-total">0</div>
+              <div class="stat-label">Total Produk</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-val" id="stat-active">0</div>
+              <div class="stat-label">Tersedia</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-val" id="stat-empty">0</div>
+              <div class="stat-label">Stok Habis</div>
+            </div>
+          </div>
+
+          <!-- Search -->
+          <div class="search-bar">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input type="text" id="list-search" placeholder="Cari produk..." oninput="renderList()" />
+          </div>
+
+          <!-- List -->
+          <div class="prod-list" id="prod-list"></div>
+        </div>
+      </div>
+
+    </div><!-- /wrap -->
+  </div><!-- /app -->
+
+  <!-- TOAST -->
+  <div class="toast-wrap" id="toast-wrap"></div>
+
+  <script>
+    /* ====================================================
+       CONFIG
+    ==================================================== */
+    // Ganti password di sini
+    const ADMIN_PWD = 'rvstore2024';
+    const LS_KEY    = 'rv_admin_products';
+    const LS_AUTH   = 'rv_admin_auth';
+
+    /* ====================================================
+       AUTH
+    ==================================================== */
+    function doLogin() {
+      const pwd = document.getElementById('pwd-input').value;
+      if (pwd === ADMIN_PWD) {
+        localStorage.setItem(LS_AUTH, '1');
+        showApp();
+      } else {
+        document.getElementById('login-err').style.display = 'block';
+        document.getElementById('pwd-input').value = '';
+        document.getElementById('pwd-input').focus();
+      }
+    }
+
+    function doLogout() {
+      localStorage.removeItem(LS_AUTH);
+      document.getElementById('app').style.display = 'none';
+      document.getElementById('login-screen').style.display = 'flex';
+      document.getElementById('pwd-input').value = '';
+    }
+
+    function showApp() {
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('app').style.display = 'block';
+      init();
+    }
+
+    // Auto-login jika sudah auth sebelumnya
+    if (localStorage.getItem(LS_AUTH) === '1') {
+      showApp();
+    }
+
+    /* ====================================================
+       DATA
+       Admin hanya bisa tambah/edit/hapus produk yang
+       disimpan di localStorage (rv_admin_products).
+       Produk dari products.json dibaca secara read-only.
+    ==================================================== */
+    let baseProducts  = []; // dari products.json (read-only)
+    let adminProducts = JSON.parse(localStorage.getItem(LS_KEY) || '[]');
+    let editingId     = null;
+
+    async function loadBase() {
+      try {
+        const res = await fetch('products.json');
+        baseProducts = await res.json();
+      } catch(e) {
+        baseProducts = [];
+      }
+    }
+
+    function allProducts() {
+      return [...baseProducts, ...adminProducts];
+    }
+
+    function saveAdminProducts() {
+      localStorage.setItem(LS_KEY, JSON.stringify(adminProducts));
+    }
+
+    /* ====================================================
+       FORM
+    ==================================================== */
+    function previewImg(url) {
+      const el = document.getElementById('img-preview');
+      if (url) {
+        el.src = url;
+        el.classList.add('show');
+        el.onerror = () => el.classList.remove('show');
+      } else {
+        el.classList.remove('show');
+      }
+    }
+
+    function submitProduct(e) {
+      e.preventDefault();
+      const name  = document.getElementById('f-name').value.trim();
+      const cat   = document.getElementById('f-cat').value.trim();
+      const price = parseInt(document.getElementById('f-price').value);
+      const stock = parseInt(document.getElementById('f-stock').value);
+      const img   = document.getElementById('f-img').value.trim();
+      const desc  = document.getElementById('f-desc').value.trim();
+
+      if (editingId !== null) {
+        // Edit produk admin
+        const idx = adminProducts.findIndex(p => p.id === editingId);
+        if (idx !== -1) {
+          adminProducts[idx] = { ...adminProducts[idx], name, category: cat, price, stock, image: img || adminProducts[idx].image, description: desc };
+          saveAdminProducts();
+          toast(`${name} berhasil diperbarui`);
+        }
+        cancelEdit();
+      } else {
+        // Tambah produk baru
+        const newId = Date.now();
+        adminProducts.push({ id: newId, name, category: cat, price, stock, image: img || '', description: desc });
+        saveAdminProducts();
+        toast(`${name} berhasil ditambahkan`);
+        document.getElementById('prod-form').reset();
+        document.getElementById('img-preview').classList.remove('show');
+      }
+      renderList();
+      updateStats();
+      updateCatList();
+    }
+
+    function editProduct(id) {
+      const p = adminProducts.find(x => x.id === id);
+      if (!p) { toast('Produk dari products.json tidak bisa diedit di sini. Edit langsung di file JSON.'); return; }
+      editingId = id;
+      document.getElementById('form-title').textContent = 'Edit Produk';
+      document.getElementById('submit-btn').textContent = 'Simpan Perubahan';
+      document.getElementById('cancel-edit-btn').style.display = 'inline';
+      document.getElementById('f-name').value  = p.name;
+      document.getElementById('f-cat').value   = p.category;
+      document.getElementById('f-price').value = p.price;
+      document.getElementById('f-stock').value = p.stock;
+      document.getElementById('f-img').value   = p.image || '';
+      document.getElementById('f-desc').value  = p.description || '';
+      previewImg(p.image || '');
+      document.querySelector('.panel').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function cancelEdit() {
+      editingId = null;
+      document.getElementById('form-title').textContent  = 'Tambah Produk';
+      document.getElementById('submit-btn').textContent  = 'Simpan Produk';
+      document.getElementById('cancel-edit-btn').style.display = 'none';
+      document.getElementById('prod-form').reset();
+      document.getElementById('img-preview').classList.remove('show');
+    }
+
+    function deleteProduct(id, isAdmin) {
+      if (!isAdmin) { toast('Produk dari products.json tidak bisa dihapus di sini.'); return; }
+      if (!confirm('Hapus produk ini?')) return;
+      adminProducts = adminProducts.filter(p => p.id !== id);
+      saveAdminProducts();
+      toast('Produk dihapus');
+      renderList();
+      updateStats();
+    }
+
+    /* ====================================================
+       LIST RENDER
+    ==================================================== */
+    function renderList() {
+      const q   = document.getElementById('list-search').value.trim().toLowerCase();
+      const all = allProducts();
+      const filtered = q ? all.filter(p => p.name.toLowerCase().includes(q) || p.category.toLowerCase().includes(q)) : all;
+
+      document.getElementById('prod-count').textContent = `${filtered.length} produk`;
+
+      const el = document.getElementById('prod-list');
+      if (!filtered.length) {
+        el.innerHTML = '<div class="empty-list">Tidak ada produk ditemukan.</div>';
+        return;
+      }
+
+      el.innerHTML = filtered.map(p => {
+        const isAdmin = adminProducts.some(a => a.id === p.id);
+        const stkCls  = p.stock === 0 ? 'stk-zero' : p.stock <= 5 ? 'stk-low' : 'stk-ok';
+        const stkTxt  = p.stock === 0 ? 'Habis' : `Stok ${p.stock}`;
+        return `<div class="pi">
+          <img class="pi-img" src="${p.image || ''}" alt="${p.name}"
+            onerror="this.src='https://placehold.co/60x60/f5f5f7/71717a?text=?'" />
+          <div class="pi-info">
+            <div class="pi-cat">${p.category}</div>
+            <div class="pi-name">${p.name}</div>
+            <div class="pi-meta">
+              <span class="pi-price">${rp(p.price)}</span>
+              <span class="pi-stk ${stkCls}">${stkTxt}</span>
+              <span class="pi-source">${isAdmin ? 'Admin' : 'products.json'}</span>
+            </div>
+          </div>
+          <div class="pi-actions">
+            <button class="pi-edit" onclick="editProduct(${p.id})" ${!isAdmin ? 'title="Edit hanya untuk produk admin"' : ''}>Edit</button>
+            <button class="pi-del" onclick="deleteProduct(${p.id}, ${isAdmin})" ${!isAdmin ? 'title="Hapus via products.json"' : ''}>Hapus</button>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    /* ====================================================
+       STATS & CATEGORIES
+    ==================================================== */
+    function updateStats() {
+      const all = allProducts();
+      document.getElementById('stat-total').textContent  = all.length;
+      document.getElementById('stat-active').textContent = all.filter(p => p.stock > 0).length;
+      document.getElementById('stat-empty').textContent  = all.filter(p => p.stock === 0).length;
+    }
+
+    function updateCatList() {
+      const cats = [...new Set(allProducts().map(p => p.category))];
+      document.getElementById('cat-list').innerHTML = cats.map(c => `<option value="${c}">`).join('');
+    }
+
+    /* ====================================================
+       EXPORT JSON
+    ==================================================== */
+    function exportJSON() {
+      if (!adminProducts.length) { toast('Belum ada produk yang ditambahkan.'); return; }
+      const blob = new Blob([JSON.stringify(adminProducts, null, 2)], { type: 'application/json' });
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href     = url;
+      a.download = 'products-tambahan.json';
+      a.click();
+      URL.revokeObjectURL(url);
+      toast('File JSON berhasil didownload');
+    }
+
+    /* ====================================================
+       TOAST
+    ==================================================== */
+    function toast(msg) {
+      const wrap = document.getElementById('toast-wrap');
+      const el   = document.createElement('div');
+      el.className  = 'toast';
+      el.textContent = msg;
+      wrap.appendChild(el);
+      setTimeout(() => {
+        el.classList.add('out');
+        setTimeout(() => el.remove(), 250);
+      }, 2600);
+    }
+
+    /* ====================================================
+       UTILITY
+    ==================================================== */
+    function rp(n) {
+      return 'Rp ' + Number(n).toLocaleString('id-ID');
+    }
+
+    /* ====================================================
+       INIT
+    ==================================================== */
+    async function init() {
+      await loadBase();
+      renderList();
+      updateStats();
+      updateCatList();
+    }
+  </script>
+</body>
+</html>
