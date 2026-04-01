@@ -10,6 +10,7 @@
   <!-- 🔥 Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -45,11 +46,12 @@
     input, select, textarea { font-family: inherit; font-size: 14px; outline: none; }
     img { display: block; max-width: 100%; }
 
-    /* ── LOGIN SCREEN ─────────────────────────────── */
-    .login-wrap {
+    /* ── AUTH SCREEN ─────────────────────────────── */
+    #auth-screen {
       min-height: 100vh;
       display: flex; align-items: center; justify-content: center;
       padding: 20px;
+      background: var(--bg);
     }
     .login-box {
       background: var(--surface);
@@ -70,14 +72,30 @@
       background: var(--bg); color: var(--text);
       font-size: 14px; transition: var(--t); margin-bottom: 14px;
     }
-    .login-input:focus { border-color: var(--accent); background: #fff; }
+    .login-input:focus { border-color: var(--accent); background: #fff; box-shadow: 0 0 0 3px rgba(37,99,235,.08); }
     .login-btn {
       width: 100%; padding: 11px; border-radius: var(--r-sm);
       background: var(--accent); color: #fff;
       font-weight: 700; font-size: 14px; transition: var(--t);
+      display: flex; align-items: center; justify-content: center; gap: 8px;
     }
-    .login-btn:hover { background: var(--accent-d); }
-    .login-err { color: var(--red); font-size: 12.5px; margin-top: 8px; display: none; }
+    .login-btn:hover:not(:disabled) { background: var(--accent-d); }
+    .login-btn:disabled { opacity: .6; cursor: not-allowed; }
+    .login-err {
+      display: none;
+      background: var(--red-lt); color: var(--red);
+      border: 1px solid #fecaca;
+      border-radius: var(--r-sm); padding: 10px 13px;
+      font-size: 12.5px; margin-bottom: 14px;
+    }
+    .login-err.show { display: block; }
+    .pw-toggle-row { position: relative; }
+    .pw-eye {
+      position: absolute; right: 12px; top: 50%; transform: translateY(-60%);
+      cursor: pointer; color: var(--muted); background: none; border: none; padding: 4px;
+      transition: var(--t);
+    }
+    .pw-eye:hover { color: var(--text); }
 
     /* ── MAIN APP ─────────────────────────────── */
     #app { display: none; }
@@ -85,7 +103,7 @@
     /* ── LOADING ─────────────────────────────── */
     .loading-overlay {
       position: fixed; inset: 0;
-      background: rgba(255,255,255,.85);
+      background: rgba(255,255,255,.9);
       z-index: 999;
       display: flex; align-items: center; justify-content: center;
       flex-direction: column; gap: 12px;
@@ -120,6 +138,14 @@
       background: #fff7ed; color: #ea580c;
       padding: 3px 10px; border-radius: 50px;
     }
+    /* User email pill */
+    .user-pill {
+      display: flex; align-items: center; gap: 7px;
+      background: var(--bg); border: 1.5px solid var(--border);
+      border-radius: 50px; padding: 5px 13px;
+      font-size: 12px; font-weight: 600; color: var(--muted);
+    }
+    .user-pill svg { color: var(--green); flex-shrink: 0; }
     .store-link {
       margin-left: auto; padding: 8px 16px;
       border-radius: 50px; border: 1.5px solid var(--border);
@@ -230,7 +256,7 @@
     .pi-edit:hover { border-color: var(--accent); color: var(--accent); }
     .empty-list { text-align: center; padding: 40px 20px; color: var(--muted); font-size: 13px; }
 
-    /* ── EXPORT SECTION ─────────────────────────────── */
+    /* ── EXPORT / IMPORT SECTION ─────────────────────────────── */
     .export-box {
       margin-top: 16px; background: var(--bg);
       border: 1.5px dashed var(--border); border-radius: var(--r); padding: 16px;
@@ -322,6 +348,7 @@
       .hdr { gap: 8px; }
       .login-box { padding: 24px 20px; }
       .row-2 { grid-template-columns: 1fr; }
+      .user-pill { display: none; }
     }
     ::-webkit-scrollbar { width: 5px; }
     ::-webkit-scrollbar-track { background: var(--bg); }
@@ -331,23 +358,54 @@
 <body>
 
   <!-- ══ LOADING OVERLAY ══════════════════════════════════ -->
-  <div class="loading-overlay hide" id="loading-overlay">
+  <div class="loading-overlay" id="loading-overlay">
     <div class="spinner"></div>
-    <div class="loading-txt" id="loading-txt">Memuat data...</div>
+    <div class="loading-txt" id="loading-txt">Menghubungkan ke Firebase...</div>
   </div>
 
-  <!-- ══ LOGIN SCREEN ══════════════════════════════════ -->
-  <div class="login-wrap" id="login-screen">
+  <!-- ══ AUTH SCREEN ══════════════════════════════════ -->
+  <div id="auth-screen" style="display:none;">
     <div class="login-box">
       <div class="login-logo">Rv <em>Store</em></div>
-      <div class="login-sub">Panel Admin</div>
-      <label class="login-label" for="pwd-input">Password</label>
-      <input class="login-input" type="password" id="pwd-input" placeholder="Masukkan password admin"
-        onkeydown="if(event.key==='Enter') doLogin()" />
-      <button class="login-btn" onclick="doLogin()">Masuk</button>
-      <div class="login-err" id="login-err">Password salah. Coba lagi.</div>
-      <div style="margin-top:16px;font-size:12px;color:var(--muted)">
-        Bukan admin? <a href="index.html" style="color:var(--accent);font-weight:600">Kembali ke toko</a>
+      <div class="login-sub">Panel Admin — Login dengan akun Firebase</div>
+
+      <!-- Error box -->
+      <div class="login-err" id="login-err"></div>
+
+      <div class="fg">
+        <label class="login-label" for="l-email">Email</label>
+        <input class="login-input" type="email" id="l-email"
+          placeholder="admin@email.com"
+          autocomplete="email"
+          onkeydown="if(event.key==='Enter') document.getElementById('l-pass').focus()" />
+      </div>
+
+      <div class="fg" style="margin-bottom:20px;">
+        <label class="login-label" for="l-pass">Password</label>
+        <div class="pw-toggle-row">
+          <input class="login-input" type="password" id="l-pass"
+            placeholder="••••••••"
+            autocomplete="current-password"
+            onkeydown="if(event.key==='Enter') doLogin()"
+            style="padding-right:40px; margin-bottom:0;" />
+          <button class="pw-eye" type="button" onclick="togglePwEye()" id="pw-eye-btn" title="Tampilkan password">
+            <!-- Eye icon -->
+            <svg id="eye-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <button class="login-btn" id="l-btn" onclick="doLogin()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+          <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/>
+        </svg>
+        Masuk
+      </button>
+
+      <div style="margin-top:16px;font-size:12px;color:var(--muted);text-align:center;">
+        Bukan admin? <a href="index.html" style="color:var(--accent);font-weight:600">Kembali ke toko →</a>
       </div>
     </div>
   </div>
@@ -361,6 +419,11 @@
         <div class="logo">Rv <em>Store</em></div>
         <span class="admin-tag">Admin</span>
         <span class="firebase-tag">🔥 Firebase</span>
+        <!-- User email pill -->
+        <div class="user-pill" id="user-pill">
+          <svg width="9" height="9" viewBox="0 0 8 8"><circle cx="4" cy="4" r="4" fill="#16a34a"/></svg>
+          <span id="user-email-label">–</span>
+        </div>
         <a class="store-link" href="index.html">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
             <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
@@ -426,7 +489,7 @@
                     <input type="checkbox" id="f-has-variants" onchange="toggleVariants()" />
                     <span class="toggle-sl"></span>
                   </div>
-                  <span class="var-toggle-label">Produk ini punya varian (contoh: ukuran, tipe, warna)</span>
+                  <span class="var-toggle-label">Produk ini punya varian</span>
                 </label>
                 <div class="var-fields" id="var-fields">
                   <div class="var-col-heads" style="margin-top:10px">
@@ -456,7 +519,7 @@
         <!-- IMPORT BOX -->
         <div class="export-box" style="border-color:#bfdbfe;background:#eff6ff;">
           <h4 style="color:var(--accent)">📥 Import dari JSON</h4>
-          <p style="margin-bottom:10px;">Upload file <code style="background:#dbeafe;padding:1px 6px;border-radius:4px;font-size:12px;">products.json</code> untuk memasukkan semua produk sekaligus ke Firebase.</p>
+          <p>Upload file <code style="background:#dbeafe;padding:1px 6px;border-radius:4px;font-size:12px;">products.json</code> untuk memasukkan semua produk sekaligus ke Firebase.</p>
           <input type="file" id="import-file" accept=".json" style="display:none" onchange="importJSON(event)" />
           <button class="export-btn" style="border-color:var(--accent);color:var(--accent);background:#fff;"
             onclick="document.getElementById('import-file').click()">
@@ -507,65 +570,112 @@
 
   <script>
     /* ====================================================
-       🔧 CONFIG — WAJIB DIISI
+       🔥 FIREBASE CONFIG
     ==================================================== */
-    const ADMIN_PWD = 'rvstore2024'; // Ganti password di sini
-
-    // ⬇️  Ganti dengan config Firebase project kamu
     const firebaseConfig = {
-  apiKey: "AIzaSyBw7lDpsVffX5EJp52E-6EuLIDFMKvqia8",
-  authDomain: "rvstore-a48f9.firebaseapp.com",
-  projectId: "rvstore-a48f9",
-  storageBucket: "rvstore-a48f9.firebasestorage.app",
-  messagingSenderId: "966135589055",
-  appId: "1:966135589055:web:15d279664a3515f7693e0a",
-  measurementId: "G-3532Y85MTB",
-  databaseURL: "https://rvstore-a48f9-default-rtdb.asia-southeast1.firebasedatabase.app"  // ← tambah ini
-};
+      apiKey:            "AIzaSyBw7lDpsVffX5EJp52E-6EuLIDFMKvqia8",
+      authDomain:        "rvstore-a48f9.firebaseapp.com",
+      projectId:         "rvstore-a48f9",
+      storageBucket:     "rvstore-a48f9.firebasestorage.app",
+      messagingSenderId: "966135589055",
+      appId:             "1:966135589055:web:15d279664a3515f7693e0a",
+      measurementId:     "G-3532Y85MTB",
+      databaseURL:       "https://rvstore-a48f9-default-rtdb.asia-southeast1.firebasedatabase.app"
+    };
 
-    /* ====================================================
-       🔥 FIREBASE INIT
-    ==================================================== */
     firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+    const db   = firebase.database();
+    const auth = firebase.auth();
 
     /* ====================================================
-       AUTH
+       🔐 AUTH STATE — satu-satunya pintu masuk ke app
     ==================================================== */
-    const LS_AUTH = 'rv_admin_auth';
+    auth.onAuthStateChanged(user => {
+      document.getElementById('loading-overlay').classList.add('hide');
 
-    function doLogin() {
-      const pwd = document.getElementById('pwd-input').value;
-      if (pwd === ADMIN_PWD) {
-        localStorage.setItem(LS_AUTH, '1');
-        showApp();
+      if (user) {
+        // Sudah login → tampilkan app
+        document.getElementById('auth-screen').style.display = 'none';
+        document.getElementById('app').style.display = 'block';
+        document.getElementById('user-email-label').textContent = user.email;
+        init();
       } else {
-        document.getElementById('login-err').style.display = 'block';
-        document.getElementById('pwd-input').value = '';
-        document.getElementById('pwd-input').focus();
+        // Belum login → tampilkan form login
+        document.getElementById('auth-screen').style.display = 'flex';
+        document.getElementById('app').style.display = 'none';
+      }
+    });
+
+    /* ====================================================
+       LOGIN
+    ==================================================== */
+    async function doLogin() {
+      const email = document.getElementById('l-email').value.trim();
+      const pass  = document.getElementById('l-pass').value;
+      const btn   = document.getElementById('l-btn');
+      const errEl = document.getElementById('login-err');
+
+      errEl.classList.remove('show');
+
+      if (!email || !pass) {
+        showLoginErr('Email dan password wajib diisi.');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = `<div class="spinner" style="width:18px;height:18px;border-width:2px;border-top-color:#fff;margin:0 auto;"></div>`;
+
+      try {
+        await auth.signInWithEmailAndPassword(email, pass);
+        // onAuthStateChanged akan otomatis handle transisi ke app
+      } catch (e) {
+        btn.disabled = false;
+        btn.innerHTML = `
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/>
+          </svg> Masuk`;
+
+        const errMsg = {
+          'auth/invalid-credential':  'Email atau password salah.',
+          'auth/user-not-found':      'Akun tidak ditemukan.',
+          'auth/wrong-password':      'Password salah.',
+          'auth/invalid-email':       'Format email tidak valid.',
+          'auth/too-many-requests':   'Terlalu banyak percobaan. Coba lagi nanti.',
+          'auth/network-request-failed': 'Gagal terhubung ke internet.',
+        };
+        showLoginErr(errMsg[e.code] || 'Login gagal: ' + e.message);
       }
     }
 
-    function doLogout() {
-      localStorage.removeItem(LS_AUTH);
-      document.getElementById('app').style.display = 'none';
-      document.getElementById('login-screen').style.display = 'flex';
-      document.getElementById('pwd-input').value = '';
+    function showLoginErr(msg) {
+      const el = document.getElementById('login-err');
+      el.textContent = '⚠️ ' + msg;
+      el.classList.add('show');
     }
 
-    function showApp() {
-      document.getElementById('login-screen').style.display = 'none';
-      document.getElementById('app').style.display = 'block';
-      init();
+    function togglePwEye() {
+      const input = document.getElementById('l-pass');
+      const isHidden = input.type === 'password';
+      input.type = isHidden ? 'text' : 'password';
+      document.getElementById('eye-icon').innerHTML = isHidden
+        ? `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>`
+        : `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`;
     }
 
-    if (localStorage.getItem(LS_AUTH) === '1') showApp();
+    /* ====================================================
+       LOGOUT
+    ==================================================== */
+    async function doLogout() {
+      if (!confirm('Yakin ingin keluar?')) return;
+      await auth.signOut();
+      // onAuthStateChanged otomatis redirect ke login
+    }
 
     /* ====================================================
        DATA STATE
     ==================================================== */
-    let products  = []; // dari Firestore
-    let editingId = null; // Firestore document ID string
+    let products  = [];
+    let editingId = null;
 
     /* ====================================================
        LOADING HELPER
@@ -579,7 +689,7 @@
     }
 
     /* ====================================================
-       LOAD PRODUCTS FROM FIRESTORE
+       LOAD PRODUCTS
     ==================================================== */
     async function loadProducts() {
       showLoading('Memuat produk dari Firebase...');
@@ -601,12 +711,11 @@
     /* ====================================================
        VARIANTS
     ==================================================== */
-    let variantRows = []; // [{key, name, price, stock}] — key = existing Firebase key or temp
+    let variantRows = [];
 
     function toggleVariants() {
       const on = document.getElementById('f-has-variants').checked;
       document.getElementById('var-fields').classList.toggle('show', on);
-      // Toggle required on main price/stock
       document.getElementById('f-price').required = !on;
       document.getElementById('f-stock').required = !on;
       if (on && variantRows.length === 0) addVariantRow();
@@ -616,7 +725,6 @@
       const id = key || ('new_' + Date.now() + '_' + Math.random().toString(36).substr(2,4));
       variantRows.push({ id });
       renderVariantRows();
-      // Populate if editing
       if (name || price !== '' || stock !== '') {
         const row = document.getElementById('vrow-' + id);
         if (row) {
@@ -673,9 +781,10 @@
       document.getElementById('var-fields').classList.add('show');
       document.getElementById('f-price').required = false;
       document.getElementById('f-stock').required = false;
-      renderVariantRows(); // clear first
+      renderVariantRows();
       Object.entries(variants).forEach(([key, v]) => addVariantRow(key, v.name, v.price, v.stock));
     }
+
     function previewImg(url) {
       const el = document.getElementById('img-preview');
       if (url) {
@@ -687,9 +796,11 @@
       }
     }
 
+    /* ====================================================
+       SUBMIT / EDIT / DELETE
+    ==================================================== */
     async function submitProduct(e) {
       e.preventDefault();
-
       const btn = document.getElementById('submit-btn');
       btn.disabled = true;
       btn.textContent = 'Menyimpan...';
@@ -705,11 +816,11 @@
       if (img && !safeImg) {
         btn.disabled = false;
         btn.textContent = editingId ? 'Simpan Perubahan' : 'Simpan Produk';
-        toast('❌ Gambar base64 tidak didukung. Gunakan URL https:// dari internet.');
+        toast('❌ Gambar base64 tidak didukung. Gunakan URL https://');
         return;
       }
 
-      const hasVar  = document.getElementById('f-has-variants').checked;
+      const hasVar   = document.getElementById('f-has-variants').checked;
       const variants = hasVar ? collectVariants() : null;
       if (hasVar && !variants) {
         btn.disabled = false;
@@ -725,16 +836,14 @@
         image: safeImg, description: desc,
       };
       if (variants) data.variants = variants;
-      else data.variants = null; // clear variants if editing and turned off
+      else data.variants = null;
 
       try {
         if (editingId !== null) {
-          // UPDATE produk yang sudah ada
           await withTimeout(db.ref('products').child(editingId).update(data));
           toast(`✅ ${name} berhasil diperbarui`);
           cancelEdit();
         } else {
-          // TAMBAH produk baru
           await withTimeout(db.ref('products').push(data));
           toast(`✅ ${name} berhasil ditambahkan`);
           document.getElementById('prod-form').reset();
@@ -814,23 +923,28 @@
       }
 
       el.innerHTML = filtered.map(p => {
-        const stkCls = p.stock === 0 ? 'stk-zero' : p.stock <= 5 ? 'stk-low' : 'stk-ok';
-        const stkTxt = p.stock === 0 ? 'Habis' : `Stok ${p.stock}`;
+        const hasVar = p.variants && Object.keys(p.variants).length > 0;
+        const totalStk = hasVar
+          ? Object.values(p.variants).reduce((s, v) => s + (v.stock || 0), 0)
+          : p.stock;
+        const stkCls = totalStk === 0 ? 'stk-zero' : totalStk <= 5 ? 'stk-low' : 'stk-ok';
+        const stkTxt = totalStk === 0 ? 'Habis' : hasVar ? `${Object.values(p.variants).filter(v=>v.stock>0).length} varian` : `Stok ${totalStk}`;
+        const dispPrice = hasVar ? Math.min(...Object.values(p.variants).map(v => v.price || 0)) : p.price;
         return `<div class="pi">
           <img class="pi-img" src="${p.image || ''}" alt="${p.name}"
             onerror="this.src='https://placehold.co/60x60/f5f5f7/71717a?text=?'" />
           <div class="pi-info">
             <div class="pi-cat">${p.category}</div>
-            <div class="pi-name">${p.name}${p.variants && Object.keys(p.variants).length ? `<span class="pi-var-badge">${Object.keys(p.variants).length} varian</span>` : ''}</div>
+            <div class="pi-name">${p.name}${hasVar ? `<span class="pi-var-badge">${Object.keys(p.variants).length} varian</span>` : ''}</div>
             <div class="pi-meta">
-              <span class="pi-price">${rp(p.price)}</span>
+              <span class="pi-price">${rp(dispPrice)}</span>
               <span class="pi-stk ${stkCls}">${stkTxt}</span>
               <span class="pi-source">🔥 Firebase</span>
             </div>
           </div>
           <div class="pi-actions">
             <button class="pi-edit" onclick="editProduct('${p.firestoreId}')">Edit</button>
-            <button class="pi-del" onclick="deleteProduct('${p.firestoreId}')">Hapus</button>
+            <button class="pi-del"  onclick="deleteProduct('${p.firestoreId}')">Hapus</button>
           </div>
         </div>`;
       }).join('');
@@ -851,34 +965,11 @@
     }
 
     /* ====================================================
-       HELPER — buang base64, hanya terima URL https://
-    ==================================================== */
-    function safeImageUrl(url) {
-      if (!url) return '';
-      // base64 bisa bikin dokumen Firestore > 1MB → hang forever
-      if (url.startsWith('data:')) return '';
-      return url;
-    }
-
-    /* ====================================================
-       HELPER — Firebase dengan timeout 15 detik
-    ==================================================== */
-    function withTimeout(promise, ms = 15000) {
-      return Promise.race([
-        promise,
-        new Promise((_, reject) =>
-          setTimeout(() => reject(new Error('Timeout — koneksi Firebase terlalu lama')), ms)
-        )
-      ]);
-    }
-
-    /* ====================================================
-       IMPORT JSON → FIRESTORE
+       IMPORT JSON
     ==================================================== */
     async function importJSON(event) {
       const file = event.target.files[0];
       if (!file) return;
-
       const statusEl = document.getElementById('import-status');
       statusEl.style.display = 'block';
       statusEl.style.color = 'var(--muted)';
@@ -921,7 +1012,6 @@
           sukses++;
         } catch (e) {
           gagal++;
-          console.warn('Gagal upload produk:', item.name, e.message);
         }
         document.getElementById('loading-txt').textContent =
           `Mengupload ${sukses + gagal} / ${data.length} produk...`;
@@ -935,16 +1025,15 @@
 
       let msg = `✅ ${sukses} produk berhasil diupload`;
       if (gagal) msg += `, ❌ ${gagal} gagal`;
-      if (skippedImg) msg += `. ⚠️ ${skippedImg} gambar base64 dilewati (terlalu besar) — ganti dengan URL https://`;
+      if (skippedImg) msg += `. ⚠️ ${skippedImg} gambar base64 dilewati`;
       statusEl.style.color = sukses > 0 ? 'var(--green)' : 'var(--red)';
       statusEl.textContent = msg;
       toast(`✅ Import selesai: ${sukses} produk masuk ke Firebase!`);
-
       document.getElementById('import-file').value = '';
     }
 
     /* ====================================================
-       EXPORT / BACKUP JSON
+       EXPORT JSON
     ==================================================== */
     function exportJSON() {
       if (!products.length) { toast('Belum ada produk.'); return; }
@@ -952,16 +1041,29 @@
       const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
       const url  = URL.createObjectURL(blob);
       const a    = document.createElement('a');
-      a.href     = url;
-      a.download = 'backup-products.json';
-      a.click();
+      a.href = url; a.download = 'backup-products.json'; a.click();
       URL.revokeObjectURL(url);
       toast('📁 Backup JSON berhasil didownload');
     }
 
     /* ====================================================
-       TOAST
+       HELPERS
     ==================================================== */
+    function safeImageUrl(url) {
+      if (!url) return '';
+      if (url.startsWith('data:')) return '';
+      return url;
+    }
+
+    function withTimeout(promise, ms = 15000) {
+      return Promise.race([
+        promise,
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Timeout — koneksi Firebase terlalu lama')), ms)
+        )
+      ]);
+    }
+
     function toast(msg) {
       const wrap = document.getElementById('toast-wrap');
       const el   = document.createElement('div');
@@ -974,9 +1076,6 @@
       }, 2600);
     }
 
-    /* ====================================================
-       UTILITY
-    ==================================================== */
     function rp(n) {
       return 'Rp ' + Number(n).toLocaleString('id-ID');
     }
